@@ -8,11 +8,14 @@ import {
   updateProfile,
 } from "firebase/auth";
 import { useNavigate } from "react-router-dom";
+import { useDispatch } from "react-redux";
+import { addUser } from "../utils/userSlice";
 
 const Login = () => {
   const [isSignInForm, setIsSignInForm] = useState(true);
   const [errorMessage, setErrorMessage] = useState(null);
   const navigate = useNavigate();
+  const dispatch = useDispatch();
 
   const name = useRef(null);
   const email = useRef(null);
@@ -37,11 +40,21 @@ const Login = () => {
           // Signed up
           const user = userCredential.user;
           updateProfile(user, {
-            displayName: "name.current.value",
-            photoURL: "",
+            displayName: name.current.value,
+            photoURL:
+              "https://imgs.search.brave.com/hhwqvsFRHqwddmNLFT97JAldr6yNi60l4ir0wftDGHs/rs:fit:860:0:0/g:ce/aHR0cHM6Ly9wbHVz/cG5nLmNvbS9pbWct/cG5nL3VzZXItcG5n/LWljb24tZmlsZS11/c2VyLWljb24tYmxh/Y2stMDEtcG5nLTMx/MS5wbmc",
           })
             .then(() => {
               // Profile updated!
+              const { uid, email, displayName, photoURL } = auth.currentUser;
+              dispatch(
+                addUser({
+                  uid: uid,
+                  email: email,
+                  displayName: displayName,
+                  photoURL,
+                })
+              );
               navigate("/browse");
             })
             .catch((error) => {
